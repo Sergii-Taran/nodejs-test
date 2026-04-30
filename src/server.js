@@ -5,6 +5,8 @@ import 'dotenv/config';
 import { connectMongoDB } from './db/connectMongoDB.js';
 import helmet from 'helmet';
 
+import { Student } from './models/student.js';
+
 const app = express();
 const PORT = process.env.PORT ?? 3001;
 
@@ -28,12 +30,20 @@ app.use(
   }),
 );
 
-app.get('/', (req, res) => {
-  res.status(200).json({ message: 'Hello world' });
+app.get('/students', async (req, res) => {
+  const students = await Student.find();
+  res.status(200).json(students);
 });
 
-app.get('/test-error', (req, res) => {
-  throw new Error('Something went wrong');
+app.get('/students/:studentId', async (req, res) => {
+  const { studentId } = req.params;
+  const student = await Student.findById(studentId);
+
+  if (!student) {
+    return res.status(404).json({ message: 'Student not found' });
+  }
+
+  res.status(200).json(student);
 });
 
 app.use((req, res) => {
