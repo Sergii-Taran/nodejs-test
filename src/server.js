@@ -3,12 +3,14 @@ import cors from 'cors';
 import pino from 'pino-http';
 import 'dotenv/config';
 import { connectMongoDB } from './db/connectMongoDB.js';
+import helmet from 'helmet';
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
 
 app.use(express.json());
 app.use(cors());
+app.use(helmet());
 app.use(
   pino({
     level: 'info',
