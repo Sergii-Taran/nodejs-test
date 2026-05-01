@@ -1,34 +1,22 @@
 import express from 'express';
-import cors from 'cors';
-import pino from 'pino-http';
 import 'dotenv/config';
-import { connectMongoDB } from './db/connectMongoDB.js';
+import cors from 'cors';
 import helmet from 'helmet';
+
+import { connectMongoDB } from './db/connectMongoDB.js';
+import { logger } from './middleware/logger.js';
+import { notFoundHandler } from './middleware/notFoundHandler.js';
+import { errorHandler } from './middleware/errorHandler.js';
 
 import { Student } from './models/student.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
 
+app.use(logger);
 app.use(express.json());
 app.use(cors());
 app.use(helmet());
-app.use(
-  pino({
-    level: 'info',
-    transport: {
-      target: 'pino-pretty',
-      options: {
-        colorize: true,
-        translateTime: 'HH:MM:ss  ',
-        ignore: 'pid,hostname',
-        messageFormat:
-          '{req.method} {req.url} {res.statusCode} - {responseTime}ms',
-        hideobject: true,
-      },
-    },
-  }),
-);
 
 app.get('/students', async (req, res) => {
   const students = await Student.find();
@@ -46,21 +34,9 @@ app.get('/students/:studentId', async (req, res) => {
   res.status(200).json(student);
 });
 
-app.use((req, res) => {
-  res.status(404).json({ message: 'Route not found' });
-});
+app.use(notFoundHandler);
 
-app.use((err, req, res, next) => {
-  console.error(err);
-
-  const isProd = process.env.NODE_ENV === 'production';
-
-  res.status(500).json({
-    message: isProd
-      ? 'Something went wrong. Please try again later.'
-      : err.message,
-  });
-});
+app.use(errorHandler);
 
 await connectMongoDB();
 
