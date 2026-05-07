@@ -15,10 +15,13 @@ const objectIdValidator = (value, helpers) => {
   return !isValidObjectId(value) ? helpers.message('Invalid id format') : value;
 };
 
-export const updateStudentSchema = {
+export const studentIdParamSchema = {
   [Segments.PARAMS]: Joi.object({
     studentId: Joi.string().custom(objectIdValidator).required(),
   }),
+};
+
+export const updateStudentBodySchema = {
   [Segments.BODY]: Joi.object({
     name: Joi.string().min(3).max(30),
     age: Joi.number().integer().min(12).max(65),

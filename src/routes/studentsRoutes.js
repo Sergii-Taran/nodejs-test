@@ -12,11 +12,13 @@ import {
 import {
   createStudentSchema,
   studentIdParamSchema,
+  updateStudentBodySchema,
 } from '../validations/studentsValidation.js';
 
 const router = Router();
 
 router.get('/students', getStudents);
+
 router.get(
   '/students/:studentId',
   celebrate(studentIdParamSchema),
@@ -30,6 +32,12 @@ router.delete(
   celebrate(studentIdParamSchema),
   deleteStudent,
 );
-router.patch('/students/:studentId', updateStudent);
+
+router.patch(
+  '/students/:studentId',
+  celebrate(studentIdParamSchema),
+  celebrate(updateStudentBodySchema),
+  updateStudent,
+);
 
 export default router;
