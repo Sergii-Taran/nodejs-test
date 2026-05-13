@@ -8,18 +8,37 @@ export const registerUser = async (req, res) => {
   const existingUser = await User.findOne({ email });
 
   if (existingUser) {
-    throw createHttpError(409, 'Email in use');
+    throw createHttpError(400, 'Email in use');
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const user = await User.create({
+  const newUser = await User.create({
     email,
     password: hashedPassword,
   });
 
   res.status(201).json({
     message: 'User registered successfully',
+    user: newUser,
+  });
+};
+
+export const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw createHttpError(401, 'Invalid credentials');
+  }
+
+  const isValidPassword = await bcrypt.compare(password, user.password);
+  if (!isValidPassword) {
+    throw createHttpError(401, 'Invalid credentials');
+  }
+
+  res.status(200).json({
+    message: 'Login success',
     user,
   });
 };
