@@ -1,7 +1,7 @@
 import createHttpError from 'http-errors';
 import bcrypt from 'bcrypt';
 import { User } from '../models/user.js';
-import { createSession } from '../services/auth.js';
+import { createSession, setSessionCookies } from '../services/auth.js';
 import { Session } from '../models/session.js';
 
 export const registerUser = async (req, res) => {
@@ -21,6 +21,8 @@ export const registerUser = async (req, res) => {
   });
 
   const newSession = await createSession(newUser._id);
+
+  setSessionCookies(res, newSession);
 
   res.status(201).json({
     message: 'User registered successfully',
@@ -46,6 +48,8 @@ export const loginUser = async (req, res) => {
   await Session.deleteOne({ userId: user._id });
 
   const newSession = await createSession(user._id);
+
+  setSessionCookies(res, newSession);
 
   res.status(200).json({
     message: 'Login success',
