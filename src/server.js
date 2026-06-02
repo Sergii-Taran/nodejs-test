@@ -10,6 +10,7 @@ import cookieParser from 'cookie-parser';
 
 import authRoutes from './routes/authRoutes.js';
 import studentsRoutes from './routes/studentsRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 import helmet from 'helmet';
 
@@ -24,6 +25,7 @@ app.use(helmet());
 
 app.use(authRoutes);
 app.use(studentsRoutes);
+app.use(userRoutes);
 
 app.use(notFoundHandler);
 app.use(errors());
